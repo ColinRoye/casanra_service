@@ -1,0 +1,10 @@
+version: '2'
+services:
+  app:
+    build: .
+    ports:
+     - 3000:3000
+  cassandra:
+    image: cassandra:2.2.14
+    ports:
+      - 9042:9042
