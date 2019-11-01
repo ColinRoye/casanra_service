@@ -5,7 +5,10 @@ services:
     volumes:
       - .:/usr/src/service/
     working_dir: /usr/src/service/
-    command: bash -c "npm install -g nodemon && chmod +x wait-for-it.sh  && ./wait-for-it.sh cassandra:9042 -t 0 --strict && nodemon --exec \"node server -d\""
+    command: bash -c "npm install -g nodemon
+               && chmod +x wait-for-it.sh
+               && ./wait-for-it.sh cassandra:9042 -t 0 --strict
+               && nodemon --exec \"node server -d\""
     #command: bash -c "sudo nodetool scrub hw6"
     ports:
      - 3000:3000
@@ -13,3 +16,16 @@ services:
     image: cassandra
     ports:
       - 9042:9042
+
+
+
+# version: '2'
+# services:
+#   app:
+#     build: .
+#     ports:
+#      - 3000:3000
+#   cassandra:
+#     image: cassandra:2.2.14
+#     ports:
+#       - 9042:9042
