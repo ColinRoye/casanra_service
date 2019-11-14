@@ -37,20 +37,42 @@ module.exports={
      		});
 
      },
-     deposit: async(filename, contents)=>{
+     deposit: async(filename, contents, res)=>{
 
 	  contents = JSON.stringify(contents);
           const query = "INSERT INTO \"hw6\".\"imgs\" (filename, contents) VALUES (?, ?)";
-          return await client.execute(query, [ filename, contents ])
-               //.then(result => console.log("\nDEPOSIT RESULT: " + JSON.stringify(result) +'\n'));
+          let ret = {};
+          return client.execute(query, [ filename, contents ]).then((resp)=>{
+                ret = env.statusOk;
+                ret.id = filename;
+                res.send(ret);
+
+          }).catch((e)=>{
+                ret = env.statusError;
+                ret.error = e;
+                res.send(ret);
+          })
      },
      retrieve: async(filename, res)=>{
-          const query = 'SELECT contents FROM hw6.imgs WHERE filename = ?';
-          return client.execute(query, [ filename ]).then((result)=>{
-			 res.setHeader("Content-Type" ,   JSON.parse(result.rows[0].contents).mimetype)
-			 res.send(new Buffer(JSON.parse(result.rows[0].contents).buffer.data));
-		}).catch((err)=>{console.log(err)});
+       let ret = {};
+        const query = 'SELECT contents FROM hw6.imgs WHERE filename = ?';
+        return client.execute(query, [ filename ]).then((result)=>{
+			       res.setHeader("Content-Type" ,   JSON.parse(result.rows[0].contents).mimetype)
+			       res.send(new Buffer(JSON.parse(result.rows[0].contents).buffer.data));
+  		  }).catch((err)=>{
+             ret = env.statusError;
+             res.status("400").send(env.statusError);
+        });
+  },
+    delete: async(filename, res)=>{
+         const query = 'DELETE contents FROM hw6.imgs WHERE filename = ?';
+         return client.execute(query, [ filename ]).then((result)=>{
+            res.send(env.statusOk);
+         }).catch((err)=>{
+           res.send(env.statusError);
 
-     }
+         });
+    }
+
 
 }
