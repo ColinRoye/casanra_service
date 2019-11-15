@@ -41,7 +41,11 @@ module.exports={
        let ret = {};
         const query = 'SELECT used FROM hw6.imgs2 WHERE filename = ?';
         return client.execute(query, [ filename ]).then((result)=>{
-            res.send(result.rows[0]);
+            if(result.rows[0]){
+              res.send(result.rows[0]);
+            }else{
+              res.send({used:"-1"});
+            }
         }).catch((err)=>{
              ret = env.statusError;
              ret.error = err;
@@ -52,7 +56,7 @@ module.exports={
         let ret = {};
         const query = 'UPDATE hw6.imgs2 SET used = ? WHERE filename = ?';
         return client.execute(query, [ '1' , filename ]).then((result)=>{
-            res.send(env.statusOk);
+            res.send(result);
         }).catch((err)=>{
             console.log(err)
             ret = env.statusError;
