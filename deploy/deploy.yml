@@ -1,45 +1,67 @@
+# ---
+# - hosts: app
+#   become: true
+#   tasks:
+#     - name: ensure nginx is at the latest version
+#       apt: name=nginx state=latest
+#     - name: start nginx
+#       service:
+#           name: nginx
+#           state: started
+#       become: yes
+#     - name: copy the nginx config file and restart nginx
+#       copy:
+#         src: ./nginx.conf
+#         dest: /etc/nginx/sites-available/static_site.cfg
+#       become: yes
+#     - name: create symlink
+#       file:
+#         src: /etc/nginx/sites-available/static_site.cfg
+#         dest: /etc/nginx/sites-enabled/default
+#         state: link
+#       become: yes
+#     - name: restart nginx
+#       service:
+#         name: nginx
+#         state: restarted
+#       become: yes
+#     - name: Install aptitude using apt
+#       apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+#
+#     - name: Install required system packages
+#       apt: name={{ item }} state=latest update_cache=yes
+#       loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'docker', 'docker-compose']
+#     - git:
+#         repo: https://github.com/ColinRoye/cassandra_service
+#         dest: /app2
+#         force: yes
+#     - name: Run mix commands
+#       shell: cd /app2 && sudo su && docker system prune && sudo sysctl -w vm.max_map_count=524288 && sudo nohup docker-compose up --build&
+#       ignore_errors: yes
+#       #loop:
+#       #  - "do deps.get, compile"
+#       #  - "ecto.create"
+#       #  - "ecto.migrate"
+#       become: True
 ---
 - hosts: app
   become: true
   tasks:
-    - name: ensure nginx is at the latest version
-      apt: name=nginx state=latest
-    - name: start nginx
-      service:
-          name: nginx
-          state: started
-      become: yes
-    - name: copy the nginx config file and restart nginx
-      copy:
-        src: ./nginx.conf
-        dest: /etc/nginx/sites-available/static_site.cfg
-      become: yes
-    - name: create symlink
-      file:
-        src: /etc/nginx/sites-available/static_site.cfg
-        dest: /etc/nginx/sites-enabled/default
-        state: link
-      become: yes
-    - name: restart nginx
-      service:
-        name: nginx
-        state: restarted
-      become: yes
     - name: Install aptitude using apt
       apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
 
     - name: Install required system packages
       apt: name={{ item }} state=latest update_cache=yes
-      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'docker', 'docker-compose']
+      loop: [ 'docker', 'docker-compose']
     - git:
-        repo: https://github.com/ColinRoye/cassandra_service
-        dest: /app2
+        repo: https://github.com/ColinRoye/cassandra_service.git
+        dest: /app
         force: yes
     - name: Run mix commands
-      shell: cd /app2 && sudo su && docker system prune && sudo sysctl -w vm.max_map_count=524288 && sudo nohup docker-compose up --build&
+      shell: cd /app
+               && echo y | sudo docker system prune
+               && sudo sysctl -w vm.max_map_count=524288
+               && npm install
+               && sudo nohup docker-compose up&
       ignore_errors: yes
-      #loop:
-      #  - "do deps.get, compile"
-      #  - "ecto.create"
-      #  - "ecto.migrate"
-      become: True
+      become: False

@@ -5,7 +5,7 @@ const uuid = require("uuid/v1")
 
 //export db agnostic services
 module.exports={
-     deposit: async (filename, contents, res)=>{
+     deposit: async (filename, contents, res, used)=>{
           return db.deposit(filename, contents, res);
      },
      retrieve: async(filename, res)=>{
@@ -13,5 +13,11 @@ module.exports={
      },
      delete: async(filename, res)=>{
           return db.delete(filename, res)
+     },
+     getUsed: async(filename, res)=>{
+          return db.getUsed(filename, res)
+     },
+     setUsed: async(filename, res)=>{
+          return  db.setUsed(filename, res)
      }
 }
